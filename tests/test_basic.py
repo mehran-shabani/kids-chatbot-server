@@ -15,3 +15,25 @@ class BasicSettingsTest(TestCase):
     def test_timezone_settings_tehran(self):
         """Test timezone can be set to Tehran."""
         self.assertEqual(settings.TIME_ZONE, 'Asia/Tehran')
+
+
+class HealthzTest(TestCase):
+    def test_healthz_returns_ok_status(self):
+        """Test that the health check endpoint returns 200 OK with correct JSON response."""
+        response = self.client.get("/healthz")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"status": "ok"})
+
+
+class SwaggerGatingTest(TestCase):
+    @override_settings(DEBUG=True)
+    def test_swagger_docs_available_in_debug_mode(self):
+        """Test that Swagger documentation is accessible when DEBUG=True."""
+        response = self.client.get("/api/docs/")
+        self.assertEqual(response.status_code, 200)
+    
+    @override_settings(DEBUG=False)
+    def test_swagger_docs_disabled_in_production(self):
+        """Test that Swagger documentation returns 404 when DEBUG=False."""
+        response = self.client.get("/api/docs/")
+        self.assertEqual(response.status_code, 404)
