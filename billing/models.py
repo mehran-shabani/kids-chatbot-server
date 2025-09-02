@@ -22,13 +22,23 @@ class Subscription(models.Model):
     renew_day = models.PositiveSmallIntegerField(default=1)
 
 
+PRICING_MODES = (("text", "text"), ("image", "image"))
+
+
 class ModelCatalog(models.Model):
+    # alias برای نمایش کودکانه و انتخاب در کلاینت
     alias = models.CharField(max_length=64, unique=True)
     friendly_name = models.CharField(max_length=128, default="")
     provider = models.CharField(max_length=32, default="OpenAI")
     model_name = models.CharField(max_length=128)
-    input_per_million_usd = models.DecimalField(max_digits=10, decimal_places=3)
-    output_per_million_usd = models.DecimalField(max_digits=10, decimal_places=3)
+    pricing_mode = models.CharField(max_length=8, choices=PRICING_MODES, default="text")
+    # قیمت‌های متن (USD per 1M tokens):
+    input_per_million_usd = models.DecimalField(max_digits=10, decimal_places=3, null=True, blank=True)
+    output_per_million_usd = models.DecimalField(max_digits=10, decimal_places=3, null=True, blank=True)
+    cached_per_million_usd = models.DecimalField(max_digits=10, decimal_places=3, null=True, blank=True)
+    # قیمت‌های تصویر (USD per request):
+    per_image_input_usd = models.DecimalField(max_digits=10, decimal_places=3, null=True, blank=True)
+    per_image_output_usd = models.DecimalField(max_digits=10, decimal_places=3, null=True, blank=True)
     enabled = models.BooleanField(default=True)
 
 
