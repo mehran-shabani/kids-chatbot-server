@@ -1,5 +1,7 @@
 import os
 from pathlib import Path
+import os
+import sys
 from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -33,6 +35,7 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
+    "config.middleware.AuditLogMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -100,6 +103,15 @@ CELERY_ENABLE_UTC = False
 
 CORS_ALLOW_ALL_ORIGINS = True if DEBUG else False
 
+# Optional explicit origins for prod
+_cors_origins = os.getenv("CORS_ALLOWED_ORIGINS", "")
+if _cors_origins:
+    CORS_ALLOWED_ORIGINS = [o for o in _cors_origins.split(",") if o]
+
+_csrf_trusted = os.getenv("CSRF_TRUSTED_ORIGINS", "")
+if _csrf_trusted:
+    CSRF_TRUSTED_ORIGINS = [o for o in _csrf_trusted.split(",") if o]
+
 # External services and pricing
 KAVEH_NEGAR_API_KEY = os.getenv("KAVEH_NEGAR_API_KEY", "")
 KAVEH_NEGAR_TEMPLATE = os.getenv("KAVEH_NEGAR_TEMPLATE", "users")
@@ -107,11 +119,18 @@ DEFAULT_MILLION_TOKENS_PRICE_USD = os.getenv("DEFAULT_MILLION_TOKENS_PRICE_USD",
 PROFIT_MARGIN = os.getenv("PROFIT_MARGIN", "0.20")
 
 # Use sqlite in tests when requested
-if os.getenv("USE_SQLITE_FOR_TESTS", "0") == "1":
+if os.getenv("USE_SQLITE_FOR_TESTS", "0") == "1" or os.getenv("PYTEST_CURRENT_TEST"):
     DATABASES["default"] = {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": ":memory:",
     }
+
+
+# MinIO config
+MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT", "")
+MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "")
+MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "")
+MINIO_BUCKET = os.getenv("MINIO_BUCKET", "media")
 
 # Production security hardening
 if not DEBUG:
@@ -134,3 +153,4 @@ if not DEBUG:
     csrf_origins = os.getenv("CSRF_TRUSTED_ORIGINS", "").strip()
     if csrf_origins:
         CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in csrf_origins.split(",") if origin.strip()]
+
