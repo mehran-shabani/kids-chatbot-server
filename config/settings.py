@@ -69,6 +69,7 @@ DATABASES = {
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.IsAuthenticated",
@@ -98,3 +99,16 @@ CELERY_TIMEZONE = TIME_ZONE
 CELERY_ENABLE_UTC = False
 
 CORS_ALLOW_ALL_ORIGINS = True if DEBUG else False
+
+# External services and pricing
+KAVEH_NEGAR_API_KEY = os.getenv("KAVEH_NEGAR_API_KEY", "")
+KAVEH_NEGAR_TEMPLATE = os.getenv("KAVEH_NEGAR_TEMPLATE", "users")
+DEFAULT_MILLION_TOKENS_PRICE_USD = os.getenv("DEFAULT_MILLION_TOKENS_PRICE_USD", "1.00")
+PROFIT_MARGIN = os.getenv("PROFIT_MARGIN", "0.20")
+
+# Use sqlite in tests when requested
+if os.getenv("USE_SQLITE_FOR_TESTS", "0") == "1":
+    DATABASES["default"] = {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": ":memory:",
+    }

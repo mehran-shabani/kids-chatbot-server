@@ -1,0 +1,42 @@
+from django.db import models
+from django.conf import settings
+
+
+class Wallet(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    balance_tokens = models.BigIntegerField(default=0)
+
+
+class Transaction(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    delta_tokens = models.BigIntegerField()
+    reason = models.CharField(max_length=64)
+    meta = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Subscription(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    tokens_per_month = models.BigIntegerField(default=1_000_000)
+    active = models.BooleanField(default=True)
+    renew_day = models.PositiveSmallIntegerField(default=1)
+
+
+class ModelCatalog(models.Model):
+    alias = models.CharField(max_length=64, unique=True)
+    friendly_name = models.CharField(max_length=128, default="")
+    provider = models.CharField(max_length=32, default="OpenAI")
+    model_name = models.CharField(max_length=128)
+    input_per_million_usd = models.DecimalField(max_digits=10, decimal_places=3)
+    output_per_million_usd = models.DecimalField(max_digits=10, decimal_places=3)
+    enabled = models.BooleanField(default=True)
+
+
+class UsageRecord(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    model_alias = models.CharField(max_length=64)
+    input_tokens = models.IntegerField(default=0)
+    output_tokens = models.IntegerField(default=0)
+    cost_usd = models.DecimalField(max_digits=10, decimal_places=4, default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+

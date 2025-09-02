@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
+from billing.views import ModelsListView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 urlpatterns = [
@@ -13,5 +14,6 @@ urlpatterns = [
     path("api/accounts/", include("accounts.urls")),
     path("api/chat/", include("chat.urls")),
     path("api/billing/", include("billing.urls")),
+    path("api/models", ModelsListView.as_view()),
 ]
 
