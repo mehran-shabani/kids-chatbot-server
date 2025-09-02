@@ -20,11 +20,7 @@ services:
     build: .
     command: |
       bash -c '
-        echo "Waiting for database..."
-        while ! pg_isready -h db -p 5432 -U ${POSTGRES_USER} -d ${POSTGRES_DB}; do
-          sleep 1
-        done
-        echo "Database is ready!"
+        echo "DB is healthy via depends_on; continuing..."
         python manage.py migrate
         gunicorn config.wsgi:application -b 0.0.0.0:8000
       '
@@ -38,7 +34,9 @@ services:
     volumes: [".:/app"]
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/healthz"]
+      test:
+        - CMD-SHELL
+        - python -c "import urllib.request,sys;sys.exit(0) if urllib.request.urlopen('http://localhost:8000/healthz', timeout=5).status==200 else sys.exit(1)"
       interval: 30s
       timeout: 10s
       retries: 3

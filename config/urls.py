@@ -7,7 +7,7 @@ from .health import healthz
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("healthz", healthz, name="healthz"),
+    path("healthz/", healthz, name="healthz"),
     path("api/accounts/", include("accounts.urls")),
     path("api/chat/", include("chat.urls")),
     path("api/billing/", include("billing.urls")),
