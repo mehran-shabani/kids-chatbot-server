@@ -1,0 +1,18 @@
+Django>=5.0
+djangorestframework
+djangorestframework-simplejwt
+drf-spectacular
+psycopg2-binary
+redis
+celery
+django-celery-beat
+python-dotenv
+kavenegar
+openai>=1.30.0
+pydantic
+django-cors-headers
+Pillow
+
+# Testing
+pytest
+pytest-django
