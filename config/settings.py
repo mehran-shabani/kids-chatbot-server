@@ -1,9 +1,11 @@
 import os
 from pathlib import Path
-import os
-import sys
 from datetime import timedelta
+from dotenv import load_dotenv
 
+load_dotenv()
+
+# Project structure 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev")
@@ -58,16 +60,19 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
+# settings.py
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("POSTGRES_DB", "kidschat"),
-        "USER": os.getenv("POSTGRES_USER", "kidschat"),
-        "PASSWORD": os.getenv("POSTGRES_PASSWORD", "kidschat"),
-        "HOST": os.getenv("POSTGRES_HOST", "db"),
-        "PORT": os.getenv("POSTGRES_PORT", "5432"),
+        "NAME": "kids_chatbot_db",
+        "USER": "postgres",
+        "PASSWORD": "yourpassword",
+        "HOST": "127.0.0.1",   # حتماً localhost/127.0.0.1، نه 0.0.0.0
+        "PORT": "5432",
     }
 }
+
+
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
@@ -89,7 +94,7 @@ SPECTACULAR_SETTINGS = {"TITLE": "Kids Chatbot API", "VERSION": "1.0.0"}
 
 AUTH_USER_MODEL = "accounts.User"
 
-TIME_ZONE = os.getenv("DJANGO_TIMEZONE", "Asia/Tehran")
+TIME_ZONE ="UTC"
 USE_TZ = True
 
 STATIC_URL = "/static/"
