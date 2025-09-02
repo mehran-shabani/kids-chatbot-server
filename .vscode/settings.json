@@ -1,0 +1,14 @@
+{
+    "cSpell.words": [
+        "djangorestframework",
+        "dotenv",
+        "kavenegar",
+        "libpq",
+        "psycopg",
+        "pydantic",
+        "pytest",
+        "PYTHONUNBUFFERED",
+        "simplejwt"
+    ],
+    "cSpell.enabled": false
+}
