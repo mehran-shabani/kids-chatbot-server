@@ -112,3 +112,25 @@ if os.getenv("USE_SQLITE_FOR_TESTS", "0") == "1":
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": ":memory:",
     }
+
+# Production security hardening
+if not DEBUG:
+    # HSTS (HTTP Strict Transport Security)
+    SECURE_HSTS_SECONDS = int(os.getenv("SECURE_HSTS_SECONDS", "31536000"))  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    
+    # SSL/HTTPS
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    
+    # Security headers
+    SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    X_FRAME_OPTIONS = "DENY"
+    
+    # CSRF trusted origins (read from environment)
+    csrf_origins = os.getenv("CSRF_TRUSTED_ORIGINS", "").strip()
+    if csrf_origins:
+        CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in csrf_origins.split(",") if origin.strip()]
