@@ -2,6 +2,7 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.generics import ListAPIView
 from django.conf import settings
 from decimal import Decimal
 from .models import ModelCatalog, Wallet, Transaction
@@ -11,6 +12,11 @@ class ModelCatalogViewSet(ReadOnlyModelViewSet):
     queryset = ModelCatalog.objects.filter(enabled=True)
     serializer_class = ModelCatalogSerializer
     permission_classes = [AllowAny]  # لیست عمومی مشکلی ندارد
+
+class ModelsListView(ListAPIView):
+    queryset = ModelCatalog.objects.filter(enabled=True)
+    serializer_class = ModelCatalogSerializer
+    permission_classes = [AllowAny]
 
 class DevPurchaseMillionView(APIView):
     def post(self, request):

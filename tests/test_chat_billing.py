@@ -24,11 +24,11 @@ def test_chat_deducts_wallet(client, settings, monkeypatch):
             prompt_tokens = 100
             completion_tokens = 200
 
-        class ChoiceMsg:
-            content = "hello"
-
         class Choice:
-            message = ChoiceMsg()
+            class Message:
+                content = "hello"
+
+            message = Message()
 
         usage = Usage()
         choices = [Choice()]
