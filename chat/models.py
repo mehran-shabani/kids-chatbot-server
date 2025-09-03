@@ -26,3 +26,18 @@ class MemorySummary(models.Model):
     up_to_message_id = models.IntegerField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+
+class ImageTask(models.Model):
+    STATUS_CHOICES = (
+        ("pending", "pending"),
+        ("completed", "completed"),
+        ("failed", "failed"),
+    )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    model_alias = models.CharField(max_length=64)
+    prompt = models.TextField(blank=True, default="")
+    object_name = models.CharField(max_length=255)
+    result = models.JSONField(default=dict, blank=True)
+    status = models.CharField(max_length=16, choices=STATUS_CHOICES, default="pending")
+    created_at = models.DateTimeField(auto_now_add=True)
+

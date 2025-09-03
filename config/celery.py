@@ -9,13 +9,15 @@ app.config_from_object("django.conf:settings", namespace="CELERY")
 app.autodiscover_tasks()
 
 app.conf.beat_schedule = {
-    "summarize-midnight": {
+    # Run nightly at 00:00 Tehran (with CELERY_TIMEZONE=Asia/Tehran)
+    "summarize-nightly": {
         "task": "analytics.tasks.summarize_active_threads",
         "schedule": crontab(minute=0, hour=0),
     },
-    "summarize-0030": {
+    # Also run at 20:30 UTC equivalently if timezone is UTC in some envs
+    "summarize-utc-2030": {
         "task": "analytics.tasks.summarize_active_threads",
-        "schedule": crontab(minute=30, hour=0),
+        "schedule": crontab(minute=30, hour=20),
     },
 }
 

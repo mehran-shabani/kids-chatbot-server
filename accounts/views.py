@@ -8,6 +8,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from kavenegar import KavenegarAPI, APIException, HTTPException
 from django.contrib.auth import get_user_model
+from django.contrib.auth import authenticate
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.core.mail import send_mail
 from rest_framework_simplejwt.tokens import RefreshToken
 import redis
 
@@ -90,4 +95,97 @@ class CompleteProfileView(APIView):
             user.set_password(password)
         user.save()
         return Response({"message": "پروفایل تکمیل شد."}, status=200)
+
+
+class EmailRegisterView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get("email")
+        username = request.data.get("username") or (email or "").split("@")[0]
+        password = request.data.get("password")
+        role = request.data.get("role")
+        if not email or not password:
+            return Response({"error": "email و password الزامی است."}, status=400)
+        User = get_user_model()
+        if User.objects.filter(email=email).exists():
+            return Response({"error": "کاربری با این ایمیل وجود دارد."}, status=400)
+        u = User.objects.create_user(username=username, email=email)
+        if role in ("doctor", "patient", "both"):
+            u.role = role
+        u.set_password(password)
+        u.save()
+        refresh = RefreshToken.for_user(u)
+        return Response({"refresh": str(refresh), "access": str(refresh.access_token)}, status=201)
+
+
+class EmailLoginView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get("email")
+        password = request.data.get("password")
+        if not email or not password:
+            return Response({"error": "email و password الزامی است."}, status=400)
+        User = get_user_model()
+        try:
+            u = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response({"error": "نام کاربری یا رمز نادرست است."}, status=400)
+        # authenticate by username since default backend uses username
+        user = authenticate(username=u.username, password=password)
+        if not user:
+            return Response({"error": "نام کاربری یا رمز نادرست است."}, status=400)
+        refresh = RefreshToken.for_user(user)
+        return Response({"refresh": str(refresh), "access": str(refresh.access_token)}, status=200)
+
+
+class ForgotPasswordView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get("email")
+        if not email:
+            return Response({"error": "email الزامی است."}, status=400)
+        User = get_user_model()
+        try:
+            u = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response({"message": "اگر ایمیل موجود باشد، لینک ارسال می‌شود."}, status=200)
+        uidb64 = urlsafe_base64_encode(force_bytes(u.pk))
+        token = default_token_generator.make_token(u)
+        reset_link = f"{request.build_absolute_uri('/')}reset-password?uid={uidb64}&token={token}"
+        try:
+            send_mail(
+                subject="Password reset",
+                message=f"Use this link to reset: {reset_link}",
+                from_email=getattr(settings, "DEFAULT_FROM_EMAIL", "no-reply@example.com"),
+                recipient_list=[email],
+                fail_silently=True,
+            )
+        except Exception:
+            pass
+        return Response({"uid": uidb64, "token": token}, status=200)
+
+
+class ResetPasswordView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        uidb64 = request.data.get("uid")
+        token = request.data.get("token")
+        new_password = request.data.get("new_password")
+        if not uidb64 or not token or not new_password:
+            return Response({"error": "uid, token, new_password الزامی است."}, status=400)
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            User = get_user_model()
+            u = User.objects.get(pk=uid)
+        except Exception:
+            return Response({"error": "درخواست نامعتبر."}, status=400)
+        if not default_token_generator.check_token(u, token):
+            return Response({"error": "توکن نامعتبر است."}, status=400)
+        u.set_password(new_password)
+        u.save()
+        return Response({"message": "رمز عبور تغییر کرد."}, status=200)
 

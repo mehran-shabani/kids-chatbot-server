@@ -38,14 +38,9 @@ class SwaggerGatingTest(TestCase):
         response = self.client.get("/api/docs/")
         self.assertEqual(response.status_code, 404)
 
-
-
-
-
-
-
-
-        این تست با ارسال یک GET به `/api/docs/` بررسی می‌کند که مسیر مستندات، وقتی متغیر تنظیمات DEBUG برابر False است، غیرفعال شده و سرور کد وضعیت 404 برمی‌گرداند.
+        """
+        This test sends a GET to `/api/docs/` and asserts that when DEBUG=False,
+        the docs route is disabled and returns 404.
         """
         response = self.client.get("/api/docs/")
         self.assertEqual(response.status_code, 404)
