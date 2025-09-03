@@ -13,6 +13,7 @@ pydantic
 django-cors-headers
 Pillow
 minio
+django-minio-storage
 
 # Testing
 pytest

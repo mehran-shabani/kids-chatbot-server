@@ -94,7 +94,7 @@ SPECTACULAR_SETTINGS = {"TITLE": "Kids Chatbot API", "VERSION": "1.0.0"}
 
 AUTH_USER_MODEL = "accounts.User"
 
-TIME_ZONE ="UTC"
+TIME_ZONE ="Asia/Tehran"
 USE_TZ = True
 
 STATIC_URL = "/static/"
@@ -136,6 +136,12 @@ MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT", "")
 MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "")
 MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "")
 MINIO_BUCKET = os.getenv("MINIO_BUCKET", "media")
+DEFAULT_FILE_STORAGE = "minio_storage.storage.MinioMediaStorage"
+MINIO_STORAGE_ENDPOINT = MINIO_ENDPOINT.replace("http://", "").replace("https://", "") if MINIO_ENDPOINT else ""
+MINIO_STORAGE_ACCESS_KEY = MINIO_ACCESS_KEY
+MINIO_STORAGE_SECRET_KEY = MINIO_SECRET_KEY
+MINIO_STORAGE_USE_HTTPS = MINIO_ENDPOINT.startswith("https://") if MINIO_ENDPOINT else False
+MINIO_STORAGE_MEDIA_BUCKET_NAME = MINIO_BUCKET
 
 # Production security hardening
 if not DEBUG:
